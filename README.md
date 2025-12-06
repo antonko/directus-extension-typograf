@@ -1,93 +1,107 @@
 # Directus Extension Typograf
 
-Кастомный интерфейс для Directus CMS с типографированием текста по правилам русского и английского языков.
+A custom interface for Directus CMS that adds a text field with a typography button. Applies language-specific typography rules using the [typograf](https://github.com/typograf/typograf) library.
 
-## Описание
+![Screenshot](https://raw.githubusercontent.com/antonko/directus-extension-typograf/main/screen.png)
 
-Расширение добавляет новый интерфейс `Typograf Input` для текстовых полей с кнопкой типографирования. Использует библиотеку [typograf](https://github.com/typograf/typograf) для автоматической расстановки правильных кавычек, тире, неразрывных пробелов и других типографических символов.
+## Installation
 
-## Возможности
+Search for **"typograf"** in Settings → Extensions → Marketplace.
 
-- 📝 **4 типа редактора**: Input, Textarea, WYSIWYG (HTML), Markdown
-- 🌍 **Локализация**: поддержка русского (ru) и английского (en-US) языков
-- 🔒 **Безопасное типографирование**: сохраняет структуру HTML и Markdown
-- ⚡ **Умные ограничения**: для полей `string` доступен только Input, для `text` — все редакторы
-- 🎯 **Кнопка справа** от поля ввода для запуска типографирования
+Or install manually:
 
-## Что делает типограф
+```bash
+npm install directus-extension-typograf
+```
 
-- Заменяет "кавычки" на «ёлочки» (ru) или "английские" (en-US)
-- Заменяет дефис на тире где нужно
-- Добавляет неразрывные пробелы после коротких слов
-- Исправляет множественные пробелы
-- И многое другое по правилам типографики
+## Features
 
-## Разработка
+- **4 Editor Types**: Input, Textarea, WYSIWYG (HTML), Markdown
+- **27 Languages**: Full typography support for multiple languages
+- **Auto Language Detection**: Automatically detects language from the `languages_code` field in translations
+- **Safe Processing**: Preserves HTML and Markdown structure during typographing
+- **Smart Constraints**: Only Input is available for `string` fields; all editors for `text` fields
 
-### Требования
+## What It Does
+
+- Replaces straight quotes with language-appropriate quotation marks (e.g., «ёлочки» for Russian, "curly quotes" for English)
+- Converts hyphens to proper dashes where needed
+- Adds non-breaking spaces after short words
+- Fixes multiple consecutive spaces
+- And many more language-specific typography rules
+
+## Supported Languages
+
+| Language     | Code    | Language  | Code |
+| ------------ | ------- | --------- | ---- |
+| Belarusian   | `be`    | Italian   | `it` |
+| Bulgarian    | `bg`    | Latvian   | `lv` |
+| Catalan      | `ca`    | Dutch     | `nl` |
+| Czech        | `cs`    | Norwegian | `no` |
+| Danish       | `da`    | Polish    | `pl` |
+| German       | `de`    | Romanian  | `ro` |
+| Greek        | `el`    | Russian   | `ru` |
+| English (UK) | `en-GB` | Serbian   | `sr` |
+| English (US) | `en-US` | Slovak    | `sk` |
+| Esperanto    | `eo`    | Slovenian | `sl` |
+| Spanish      | `es`    | Swedish   | `sv` |
+| Estonian     | `et`    | Turkish   | `tr` |
+| Finnish      | `fi`    | Ukrainian | `uk` |
+| French       | `fr`    |           |      |
+| Hungarian    | `hu`    |           |      |
+| Irish        | `ga`    |           |      |
+
+## Usage
+
+1. Go to your collection settings in Directus Admin
+2. Create or edit a field of type `string` or `text`
+3. Select **Typograf Input** as the interface
+4. Configure options:
+   - **Editor Type**: Input / Textarea / WYSIWYG / Markdown
+   - **Locale**: Auto (from translations) or select a specific language
+   - **Placeholder**: Optional hint text
+5. When editing an item, click the typography button to apply rules
+
+> **Note**: For `string` (VARCHAR) fields, only single-line Input is available. For `text` (TEXT) fields, all editor types are available.
+
+## Development
+
+### Requirements
 
 - Node.js 18+
 - Docker + Docker Compose
 
-### Запуск
+### Running Locally
 
-1. Запустите Directus в Docker:
+1. Start Directus in Docker:
 
 ```bash
 docker compose up
 ```
 
-2. В отдельном терминале запустите dev-режим расширения:
+2. In a separate terminal, start extension dev mode:
 
 ```bash
 cd extensions/directus-extension-typograf
 npm run dev
 ```
 
-3. Откройте Directus: http://localhost:8055
+3. Open Directus: http://localhost:8055
 
-### Сборка
+### Building
 
 ```bash
 cd extensions/directus-extension-typograf
 npm run build
 ```
 
-## Использование
-
-1. Зайдите в настройки коллекции в Directus Admin
-2. Создайте или отредактируйте поле типа `string` или `text`
-3. В настройках поля выберите интерфейс **Typograf Input**
-4. Настройте опции:
-   - **Тип редактора**: Input / Textarea / WYSIWYG / Markdown
-   - **Локаль**: Русский / Английский
-   - **Плейсхолдер**: текст-подсказка
-5. При редактировании элемента нажмите кнопку ✨ для типографирования
-
-> **Примечание**: Для полей типа `string` (VARCHAR) доступен только однострочный Input. Для полей типа `text` (TEXT) доступны все варианты редакторов.
-
-## Структура проекта
-
-```
-.
-├── extensions/
-│   └── directus-extension-typograf/
-│       ├── src/
-│       │   ├── index.ts          # Конфигурация интерфейса
-│       │   ├── interface.vue     # Vue компонент
-│       │   └── typograf.ts       # Логика типографирования
-│       └── dist/                 # Собранное расширение
-├── compose.yml                   # Docker Compose для Directus
-└── database/                     # SQLite база данных
-```
-
-## Технологии
+## Technologies
 
 - Directus 11.5.1
 - Vue 3 (Composition API)
 - TypeScript
 - [typograf](https://github.com/typograf/typograf) 7.6.0
 
-## Лицензия
+## License
 
 Apache-2.0
