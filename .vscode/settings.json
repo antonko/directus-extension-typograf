@@ -1,0 +1,24 @@
+{
+  "editor.formatOnSave": true,
+  "files.eol": "\n",
+  "eslint.validate": [
+    "javascript",
+    "typescript"
+  ],
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "always"
+  },
+  "files.exclude": {
+    "**/.git": true,
+    "**/node_modules": true,
+    "**/dist": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true
+  },
+  "editor.rulers": [
+    120
+  ],
+  "prettier.trailingComma": "all"
+}

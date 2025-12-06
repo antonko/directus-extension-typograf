@@ -1,0 +1,6 @@
+database/
+uploads/
+**/.DS_Store
+**/node_modules
+**/dist
+**/data.db
