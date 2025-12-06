@@ -4,9 +4,7 @@
 
 ## Описание проекта
 
-Кастомное расширение (interface) для Directus CMS, добавляющее текстовое поле с кнопкой обработки текста справа от поля ввода.
-
-**Цель**: Типографирование текста по правилам русского/английского языка.
+Кастомное расширение (interface) для Directus CMS, добавляющее текстовое поле с кнопкой типографирования текста по правилам русского/английского языка.
 
 ## Архитектура
 
@@ -20,8 +18,9 @@
 ```
 extensions/directus-extension-typograf/
 ├── src/
-│   ├── index.ts          # Entrypoint: конфигурация интерфейса (defineInterface)
+│   ├── index.ts          # Конфигурация интерфейса (defineInterface)
 │   ├── interface.vue     # Vue 3 компонент с Composition API
+│   ├── typograf.ts       # Логика типографирования для разных форматов
 │   └── shims.d.ts        # TypeScript definitions для .vue файлов
 ├── dist/                 # Собранный бандл (не в git)
 └── package.json          # Зависимости и скрипты сборки
@@ -31,40 +30,73 @@ extensions/directus-extension-typograf/
 
 ```typescript
 defineInterface({
-  id: "typograf-input", // Уникальный ID интерфейса
-  name: "Typograf Input", // Отображаемое имя
-  icon: "text_fields", // Material Icons название
-  types: ["string", "text"], // Поддерживаемые типы полей БД
-  options: null, // Пока нет настроек
-  component: InterfaceComponent, // Vue компонент
+  id: "typograf-input",
+  name: "Typograf Input",
+  icon: "text_fields",
+  description: "Текстовое поле с типографированием",
+  component: InterfaceComponent,
+  // Динамические опции на основе типа поля
+  options: (context) => {
+    const fieldType = context?.field?.type;
+    const isStringField = fieldType === "string";
+    // Для string - только input, для text - все редакторы
+    // ...
+  },
+  types: ["string", "text"],
 });
 ```
 
 ### Vue компонент (`interface.vue`)
 
-**Используемые Directus UI компоненты** (глобально доступны, импорт не нужен):
+**Используемые компоненты** (глобально доступны в Directus):
 
-- `<v-input>` - текстовое поле
-- `<v-button>` - кнопка
-- `<v-icon>` - иконка
+- `<v-input>` - однострочное текстовое поле
+- `<v-textarea>` - многострочное текстовое поле
+- `<interface-input-rich-text-html>` - WYSIWYG редактор
+- `<interface-input-rich-text-md>` - Markdown редактор
+- `<v-button>`, `<v-icon>` - кнопка типографирования
 
 **Пропсы интерфейса**:
 
 - `value: string | null` - текущее значение поля
 - `disabled: boolean` - заблокировано ли поле
 - `placeholder: string` - плейсхолдер
+- `editorType: EditorType` - тип редактора (input/textarea/wysiwyg/markdown)
+- `locale: LocaleType` - локаль (ru/en-US)
+- `type: string` - тип поля БД (string/text)
 
 **События**:
 
 - `@input` - эмитится при изменении значения (не `update:modelValue`!)
 
-**Важно**: Directus использует событие `input`, а не стандартное Vue 3 `update:modelValue`.
+### Модуль типографирования (`typograf.ts`)
+
+```typescript
+// Типы
+type EditorType = "input" | "textarea" | "wysiwyg" | "markdown";
+type LocaleType = "ru" | "en-US";
+
+// Функции
+typografPlainText(text, locale); // Для Input/Textarea
+typografHtml(html, locale); // Для WYSIWYG - сохраняет HTML структуру
+typografMarkdown(md, locale); // Для Markdown - защищает синтаксис
+applyTypograf(text, editorType, locale); // Универсальная функция
+```
+
+**Особенности Markdown типографирования**:
+
+- Защищает code blocks (```)
+- Защищает inline code (`)
+- Защищает ссылки и изображения
+- Защищает URL
+- Типографирует только текстовое содержимое
 
 ## Технологии
 
 - **Directus**: 11.5.1
 - **Vue**: 3.5.25 (Composition API, `<script setup>`)
 - **TypeScript**: 5.9.3
+- **typograf**: 7.6.0
 - **Build Tool**: `@directus/extensions-sdk` CLI
 
 ## Команды разработки
@@ -90,29 +122,26 @@ npm run build
 
 ## Особенности Directus Extensions
 
-1. **Глобальные компоненты**: Все Directus UI компоненты (`v-*`) доступны без импорта
+1. **Глобальные компоненты**: Все Directus UI компоненты (`v-*`, `interface-*`) доступны без импорта
 2. **Событие `input`**: Используется вместо стандартного `update:modelValue`
-3. **Композаблы**: Доступны из `@directus/extensions-sdk` (useApi, useStores, и др.)
+3. **Динамические options**: Функция `options(context)` получает контекст с `field.type`
 4. **Hot Reload**: При изменении файлов в dev-режиме автоматически пересобирается
 
-## Следующие шаги для развития
+## Ограничения типов полей
 
-1. **Добавить библиотеку типографа**:
+| Тип поля БД        | Доступные редакторы                |
+| ------------------ | ---------------------------------- |
+| `string` (VARCHAR) | Input                              |
+| `text` (TEXT)      | Input, Textarea, WYSIWYG, Markdown |
 
-   - Установить `typograf` в `package.json`
-   - Реализовать `new Typograf().execute(text)` в обработчике кнопки
+Ограничение реализовано на двух уровнях:
 
-2. **Расширить опции**:
-
-   - Добавить `options` в `index.ts` для настройки локали
-   - Поддержка выбора правил типографирования
-
-3. **Поддержка textarea/markdown**:
-   - Условный рендеринг `v-input` vs `v-textarea` на основе опций
-   - Учет многострочного текста
+1. В `index.ts` — динамически фильтруются варианты в dropdown
+2. В `interface.vue` — `effectiveEditorType` всегда возвращает `input` для string
 
 ## Полезные ссылки
 
 - [Directus Extensions Docs](https://docs.directus.io/guides/extensions/)
 - [Directus Interfaces Guide](https://docs.directus.io/guides/extensions/app-extensions/interfaces)
 - [Directus UI Library](https://docs.directus.io/guides/extensions/app-extensions/ui-library)
+- [typograf GitHub](https://github.com/typograf/typograf)
