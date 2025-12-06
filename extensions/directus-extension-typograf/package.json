@@ -28,5 +28,8 @@
 		"@directus/extensions-sdk": "17.0.3",
 		"typescript": "^5.9.3",
 		"vue": "^3.5.25"
+	},
+	"dependencies": {
+		"typograf": "^7.6.0"
 	}
 }
