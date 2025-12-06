@@ -101,35 +101,17 @@ const effectiveEditorType = computed<EditorType>(() => {
 });
 
 function handleChange(value: string | null): void {
-  console.log("[Typograf] handleChange вызван:", { value });
   emit("input", value);
 }
 
 function handleTypograf(): void {
-  console.log("[Typograf] handleTypograf вызван");
-  console.log("[Typograf] props:", {
-    value: props.value,
-    editorType: props.editorType,
-    effectiveEditorType: effectiveEditorType.value,
-    locale: props.locale,
-    type: props.type,
-    disabled: props.disabled,
-  });
-
   const currentValue = props.value || "";
-  console.log("[Typograf] Исходный текст:", JSON.stringify(currentValue));
-
   const result = applyTypograf(
     currentValue,
     effectiveEditorType.value,
     props.locale,
   );
-
-  console.log("[Typograf] Результат:", JSON.stringify(result));
-  console.log("[Typograf] Текст изменился:", currentValue !== result);
-
   emit("input", result);
-  console.log("[Typograf] emit('input', result) выполнен");
 }
 </script>
 
