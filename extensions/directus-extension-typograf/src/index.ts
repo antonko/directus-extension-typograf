@@ -5,7 +5,7 @@ export default defineInterface({
   id: "typograf-input",
   name: "Typograf Input",
   icon: "text_fields",
-  description: "Текстовое поле с типографированием",
+  description: "Text field with automatic typography",
   component: InterfaceComponent,
   options: (context) => {
     const fieldType = context?.field?.type;
@@ -13,10 +13,10 @@ export default defineInterface({
 
     // Варианты редактора: для string - только input, для text - все
     const editorChoices = isStringField
-      ? [{ text: "Однострочное поле (Input)", value: "input" }]
+      ? [{ text: "Single-line (Input)", value: "input" }]
       : [
-          { text: "Однострочное поле (Input)", value: "input" },
-          { text: "Многострочное поле (Textarea)", value: "textarea" },
+          { text: "Single-line (Input)", value: "input" },
+          { text: "Multi-line (Textarea)", value: "textarea" },
           { text: "WYSIWYG (HTML)", value: "wysiwyg" },
           { text: "Markdown", value: "markdown" },
         ];
@@ -24,14 +24,14 @@ export default defineInterface({
     return [
       {
         field: "editorType",
-        name: "Тип редактора",
+        name: "Editor Type",
         type: "string",
         meta: {
           interface: "select-dropdown",
           width: "half",
           note: isStringField
-            ? "Для полей типа string доступен только Input."
-            : "Textarea/WYSIWYG/Markdown доступны только для полей типа text.",
+            ? "Only Input is available for string fields."
+            : "Textarea/WYSIWYG/Markdown are only available for text fields.",
           options: {
             choices: editorChoices,
           },
@@ -42,25 +42,54 @@ export default defineInterface({
       },
       {
         field: "locale",
-        name: "Локаль для типографирования",
+        name: "Typograph Locale",
         type: "string",
         meta: {
           interface: "select-dropdown",
           width: "half",
+          note: '"Auto" detects language from translations collection (languages_code).',
           options: {
             choices: [
-              { text: "Русский (ru)", value: "ru" },
-              { text: "Английский (en-US)", value: "en-US" },
+              { text: "Auto (from translations)", value: "auto" },
+              { text: "Belarusian (be)", value: "be" },
+              { text: "Bulgarian (bg)", value: "bg" },
+              { text: "Catalan (ca)", value: "ca" },
+              { text: "Czech (cs)", value: "cs" },
+              { text: "Danish (da)", value: "da" },
+              { text: "Dutch (nl)", value: "nl" },
+              { text: "English, UK (en-GB)", value: "en-GB" },
+              { text: "English, US (en-US)", value: "en-US" },
+              { text: "Esperanto (eo)", value: "eo" },
+              { text: "Estonian (et)", value: "et" },
+              { text: "Finnish (fi)", value: "fi" },
+              { text: "French (fr)", value: "fr" },
+              { text: "German (de)", value: "de" },
+              { text: "Greek (el)", value: "el" },
+              { text: "Hungarian (hu)", value: "hu" },
+              { text: "Irish (ga)", value: "ga" },
+              { text: "Italian (it)", value: "it" },
+              { text: "Latvian (lv)", value: "lv" },
+              { text: "Norwegian (no)", value: "no" },
+              { text: "Polish (pl)", value: "pl" },
+              { text: "Romanian (ro)", value: "ro" },
+              { text: "Russian (ru)", value: "ru" },
+              { text: "Serbian (sr)", value: "sr" },
+              { text: "Slovak (sk)", value: "sk" },
+              { text: "Slovenian (sl)", value: "sl" },
+              { text: "Spanish (es)", value: "es" },
+              { text: "Swedish (sv)", value: "sv" },
+              { text: "Turkish (tr)", value: "tr" },
+              { text: "Ukrainian (uk)", value: "uk" },
             ],
           },
         },
         schema: {
-          default_value: "ru",
+          default_value: "auto",
         },
       },
       {
         field: "placeholder",
-        name: "Плейсхолдер",
+        name: "Placeholder",
         type: "string",
         meta: {
           interface: "input",

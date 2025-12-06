@@ -1,5 +1,7 @@
 {
   "editor.formatOnSave": true,
+  "editor.renderWhitespace": "all",
+  "editor.renderControlCharacters": true,
   "files.eol": "\n",
   "eslint.validate": [
     "javascript",

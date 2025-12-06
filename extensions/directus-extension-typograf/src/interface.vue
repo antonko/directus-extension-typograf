@@ -58,7 +58,7 @@
       icon
       small
       class="typograf-button"
-      v-tooltip="'Типографировать текст'"
+      v-tooltip="'Apply typography'"
     >
       <v-icon name="auto_fix_high" />
     </v-button>
@@ -66,15 +66,21 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
-import { applyTypograf, type EditorType, type LocaleType } from "./typograf";
+import { computed, getCurrentInstance, inject } from "vue";
+import {
+  applyTypograf,
+  mapLanguageCode,
+  type EditorType,
+  type LocaleType,
+  type LocaleOption,
+} from "./typograf";
 
 interface Props {
   value?: string | null;
   disabled?: boolean;
   placeholder?: string;
   editorType?: EditorType;
-  locale?: LocaleType;
+  locale?: LocaleOption;
   type?: string; // Тип поля из БД: "string" | "text"
 }
 
@@ -83,13 +89,53 @@ const props = withDefaults(defineProps<Props>(), {
   disabled: false,
   placeholder: "",
   editorType: "input",
-  locale: "ru",
+  locale: "auto",
   type: "string",
 });
 
 const emit = defineEmits<{
   (e: "input", value: string | null): void;
 }>();
+
+// Получаем inject values для доступа к languages_code в translations
+const injectedValues = inject<any>("values", null);
+
+// Получаем field-data из attrs для определения, находимся ли мы в translations коллекции
+const instance = getCurrentInstance();
+const fieldData = instance?.attrs["field-data"] as
+  | { collection?: string }
+  | undefined;
+const isTranslationsCollection =
+  fieldData?.collection?.endsWith("_translations") ?? false;
+
+/**
+ * Определяет эффективную локаль для типографирования
+ * - Если locale="auto" и поле в translations коллекции → берём из languages_code
+ * - Иначе используем статическую настройку
+ */
+const effectiveLocale = computed<LocaleType>(() => {
+  // Если задана конкретная локаль (не auto) — используем её
+  if (props.locale !== "auto") {
+    return props.locale;
+  }
+
+  // Режим "auto" — пытаемся определить язык из контекста
+  if (isTranslationsCollection && injectedValues?.value) {
+    const values = injectedValues.value;
+    // languages_code может быть строкой или объектом {code: "..."}
+    const langCode =
+      typeof values.languages_code === "object"
+        ? values.languages_code?.code
+        : values.languages_code;
+
+    if (langCode) {
+      return mapLanguageCode(langCode);
+    }
+  }
+
+  // Fallback — русский
+  return "ru";
+});
 
 // Вычисляем эффективный тип редактора с учётом ограничений
 // string поддерживает только input, text - все типы
@@ -109,7 +155,7 @@ function handleTypograf(): void {
   const result = applyTypograf(
     currentValue,
     effectiveEditorType.value,
-    props.locale,
+    effectiveLocale.value,
   );
   emit("input", result);
 }
