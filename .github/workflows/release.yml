@@ -1,0 +1,68 @@
+name: Release CI/CD
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm install
+        working-directory: ./extensions/directus-extension-typograf
+
+      - name: Build
+        run: npm run build
+        working-directory: ./extensions/directus-extension-typograf
+
+      - name: Archive built files
+        run: tar -czvf build.tar.gz -C ./extensions/directus-extension-typograf dist package.json
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: built-files
+          path: build.tar.gz
+
+  semantic-release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: built-files
+          path: ./extensions/directus-extension-typograf
+
+      - name: Copy README.md to extension directory
+        run: cp README.md extensions/directus-extension-typograf/README.md
+
+      - name: Unpack build artifact
+        run: tar -xzvf build.tar.gz
+        working-directory: ./extensions/directus-extension-typograf
+
+      - name: Semantic Release
+        run: npx semantic-release
+        working-directory: ./extensions/directus-extension-typograf
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
