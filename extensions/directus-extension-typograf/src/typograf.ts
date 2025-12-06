@@ -15,15 +15,9 @@ function createTypograf(locale: LocaleType): Typograf {
  * Типографирование plain text (Input/Textarea)
  */
 export function typografPlainText(text: string, locale: LocaleType): string {
-  console.log("[Typograf:plainText] Вход:", { text, locale });
   if (!text) return text;
   const tp = createTypograf(locale);
-  const result = tp.execute(text);
-  console.log("[Typograf:plainText] Результат:", {
-    input: text,
-    output: result,
-  });
-  return result;
+  return tp.execute(text);
 }
 
 /**
@@ -113,38 +107,17 @@ export function applyTypograf(
   editorType: EditorType,
   locale: LocaleType,
 ): string {
-  console.log("[Typograf:applyTypograf] Вход:", { text, editorType, locale });
-
-  if (!text) {
-    console.log("[Typograf:applyTypograf] Текст пустой, возвращаем как есть");
-    return text;
-  }
-
-  let result: string;
+  if (!text) return text;
 
   switch (editorType) {
     case "input":
     case "textarea":
-      console.log("[Typograf:applyTypograf] Используем typografPlainText");
-      result = typografPlainText(text, locale);
-      break;
+      return typografPlainText(text, locale);
     case "wysiwyg":
-      console.log("[Typograf:applyTypograf] Используем typografHtml");
-      result = typografHtml(text, locale);
-      break;
+      return typografHtml(text, locale);
     case "markdown":
-      console.log("[Typograf:applyTypograf] Используем typografMarkdown");
-      result = typografMarkdown(text, locale);
-      break;
+      return typografMarkdown(text, locale);
     default:
-      console.log("[Typograf:applyTypograf] Fallback на typografPlainText");
-      result = typografPlainText(text, locale);
+      return typografPlainText(text, locale);
   }
-
-  console.log("[Typograf:applyTypograf] Результат:", {
-    input: text,
-    output: result,
-    changed: text !== result,
-  });
-  return result;
 }
